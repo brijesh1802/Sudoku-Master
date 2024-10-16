@@ -99,6 +99,7 @@
                 android:textSize="20sp" />
 
             <TextView
+                android:id="@+id/mistakecounter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -127,7 +128,7 @@
             android:layout_margin="16dp"
             android:alignmentMode="alignMargins"
             android:layout_gravity="center"
-            android:background="@drawable/cell_background"
+            android:background="@android:color/white"
             android:padding="2dp"
             android:columnCount="9"
             android:rowCount="9">
@@ -153,6 +154,7 @@
             android:layout_height="wrap_content">
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/num1"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
@@ -163,6 +165,7 @@
                 android:textSize="22sp" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/num2"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
@@ -173,6 +176,7 @@
                 android:background="@drawable/rounded_button"/>
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/num3"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
@@ -183,6 +187,7 @@
                 android:background="@drawable/rounded_button"/>
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/num4"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
@@ -193,6 +198,7 @@
                 android:background="@drawable/rounded_button"/>
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/num5"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
@@ -208,6 +214,7 @@
             android:layout_height="wrap_content">
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/num6"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
@@ -218,6 +225,7 @@
                 android:background="@drawable/rounded_button"/>
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/num7"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
@@ -228,6 +236,7 @@
                 android:background="@drawable/rounded_button"/>
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/num8"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
@@ -238,6 +247,7 @@
                 android:background="@drawable/rounded_button"/>
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/num9"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"

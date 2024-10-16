@@ -3,6 +3,8 @@ package com.example.sudokumaster;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.view.Gravity;
+import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.TextView;
 
@@ -16,38 +18,92 @@ public class SudokuGenerator {
 
     private static final int GRID_SIZE = 9;
 
-    public static void generateSudoku(GridLayout sudokuBoard) {
+
+    private static TextView selectedCell = null;
+
+
+    public static void generateSudoku(GridLayout sudokuBoard, Context context) {
         int[][] grid = new int[GRID_SIZE][GRID_SIZE];
         fillValues(grid);
+
+        removeNumbers(grid);
 
         // Clear existing views in the GridLayout
         sudokuBoard.removeAllViews();
 
         for (int i = 0; i < GRID_SIZE; i++) {
             for (int j = 0; j < GRID_SIZE; j++) {
-                TextView textView = new TextView(sudokuBoard.getContext());
-                textView.setText(grid[i][j] == 0 ? "" : String.valueOf(grid[i][j])); // Display 0 as empty
+                TextView textView = new TextView(context);
+                textView.setText(grid[i][j] == 0 ? "" : String.valueOf(grid[i][j]));
 
+                // Set cell appearance
+                textView.setTextColor(Color.BLACK);
+                textView.setTextSize(24);
+                textView.setGravity(Gravity.CENTER);
 
-                // THEN, set the alternate background color for 3x3 matrices
+                // Set background for 3x3 matrix alternating color
                 int gridRow = i / 3;
                 int gridCol = j / 3;
                 if ((gridRow + gridCol) % 2 == 0) {
-                    textView.setBackgroundColor(Color.parseColor("#EEEEEE")); // Light gray
+                    textView.setBackgroundColor(Color.parseColor("#EEEEEE"));
                 } else {
-                    textView.setBackgroundColor(Color.parseColor("#FFFFFF")); // White
+                    textView.setBackgroundColor(Color.parseColor("#FFFFFF"));
                 }
 
-                textView.setTextColor(Color.BLACK);
-                textView.setTextSize(24);
-
+                // Set LayoutParams to position the TextView in the grid
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-                params.rowSpec = GridLayout.spec(i, 1f); // Distribute rows evenly
-                params.columnSpec = GridLayout.spec(j, 1f); // Distribute columns evenly
+                params.rowSpec = GridLayout.spec(i, 1f);
+                params.columnSpec = GridLayout.spec(j, 1f);
+                params.width = 0;
+                params.height = 0;
+                params.setMargins(2, 2, 2, 2);
+                textView.setLayoutParams(params);
+
+                textView.setTag(grid[i][j]);
+
+                // Make the cell clickable
+                textView.setOnClickListener(v -> {
+                    if (selectedCell != null) {
+                        selectedCell.setBackgroundColor(Color.TRANSPARENT); // Reset the background of the previously selected cell
+                    }
+                    selectedCell = textView;
+                    textView.setBackgroundColor(Color.YELLOW); // Highlight selected cell
+                });
+
                 sudokuBoard.addView(textView, params);
             }
         }
     }
+
+
+    // New method to remove some numbers from the filled grid
+    private static void removeNumbers(int[][] grid) {
+        int count = 30; // Adjust this to set how many numbers you want to remove
+        while (count > 0) {
+            int row = (int) (Math.random() * GRID_SIZE);
+            int col = (int) (Math.random() * GRID_SIZE);
+            if (grid[row][col] != 0) {
+                grid[row][col] = 0; // Set the value to 0 to make it empty
+                count--;
+            }
+        }
+    }
+
+    public static void setupNumberButtons(GridLayout sudokuBoard, Button[] numberButtons) {
+        for (int i = 0; i < numberButtons.length; i++) {
+            int number = i + 1; // Buttons are 1 to 9
+
+            numberButtons[i].setOnClickListener(v -> {
+                if (selectedCell != null) {
+                    selectedCell.setText(String.valueOf(number));
+                    selectedCell.setBackgroundColor(Color.TRANSPARENT); // Remove highlight after number is set
+                    selectedCell = null; // Clear the selected cell
+                }
+            });
+        }
+    }
+
+
 
     private static boolean fillValues(int[][] grid) {
         for (int row = 0; row < GRID_SIZE; row++) {
@@ -66,15 +122,15 @@ public class SudokuGenerator {
                             if (fillValues(grid)) {
                                 return true;
                             } else {
-                                grid[row][col] = 0; // Backtrack
+                                grid[row][col] = 0;
                             }
                         }
                     }
-                    return false; // Trigger backtracking
+                    return false;
                 }
             }
         }
-        return true; // Puzzle solved
+        return true;
     }
 
     private static boolean isSafe(int[][] grid, int row, int col, int num) {
