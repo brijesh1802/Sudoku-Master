@@ -2,13 +2,10 @@ package com.example.sudokumaster;
 
 import static com.example.sudokumaster.SudokuGenerator.generateSudoku;
 import static com.example.sudokumaster.SudokuGenerator.setupNumberButtons;
-
+import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
@@ -16,23 +13,18 @@ import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-
 import com.google.android.material.button.MaterialButton;
-
-import java.util.Arrays;
 import java.util.Locale;
-import java.util.Stack;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TextView selectedCell; // This will hold the currently selected cell
-    private TextView mistakeCounterTextView; // TextView for displaying mistakes
-    private int mistakes = 0; // Count of mistakes made
+    private static TextView mistakeCounterTextView; // TextView for displaying mistakes
+    public static int mistakes = 0; // Count of mistakes made
     private static final int MAX_MISTAKES = 3; // Maximum allowed mistakes
-    MaterialButton[] numberButtons;
+    static MaterialButton[]  numberButtons;
     private ImageView timerimg, timeSelectImg,restartimg;
     private TextView timerTextView;
     private CountDownTimer countDownTimer;
@@ -80,8 +72,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Setup number buttons in Sudoku
         setupNumberButtons(numberButtons,this);
 
-        // Start the timer when activity is opened
-        //startTimer();
 
         // Set onClickListener to pause/resume the timer
         timerimg.setOnClickListener(v -> {
@@ -93,7 +83,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         restartimg.setOnClickListener(v -> {
             generateSudoku(sudokuBoard, getApplicationContext());
-            //updateTimer();
         });
 
     }
@@ -102,12 +91,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         for (int i = 0; i < 9; i++) {
             if (v.getId() == numberButtons[i].getId()) {
-                int number = i + 1;
-                setNumberInSelectedCell(number);
+                int number = i + 1; // Get the number based on the button clicked
+
+                // Call the method to set the number in the selected cell
+                SudokuGenerator.setNumberInSelectedCell(SudokuGenerator.selectedCell, number);
                 break;
             }
         }
     }
+
 
 
     private void showTimeSelectionDialog() {
@@ -207,43 +199,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private void setNumberInSelectedCell(int number) {
-        if (selectedCell != null) {
-            // Get the position of the selected cell (assuming the cell stores row and column in its tag)
-            Cell cellTag = (Cell) selectedCell.getTag();
-            int row = cellTag.row;
-            int col = cellTag.col;
-
-
-            // Get the correct value from the original grid (defined in GameData)
-            int correctValue = GameData.originalGrid[row][col];
-
-            // Check if the entered number is correct
-            if (number != correctValue) {
-                mistakes++; // Increment mistakes if the number is incorrect
-                updateMistakeCounter();
-            }
-
-            // Set the number in the selected cell
-            selectedCell.setText(String.valueOf(number));
-
-            // Optionally, update cell appearance to indicate it was filled
-            selectedCell.setBackgroundColor(Color.TRANSPARENT); // Remove highlight after setting number
-            selectedCell = null; // Deselect the cell after setting
-        } else {
-            Log.d("SudokuGame", "No cell is selected.");
-        }
-    }
-
-    public void updateMistakeCounter() {
-        mistakeCounterTextView.setText(mistakes + "/" + MAX_MISTAKES); // Update the display
+    @SuppressLint("DefaultLocale")
+    public static void updateMistakeCounter() {
+        mistakeCounterTextView.setText(String.format("%d/%d", mistakes, MAX_MISTAKES)); // Update the display
         if (mistakes >= MAX_MISTAKES) {
-            Toast.makeText(this, "Game Over! You've made too many mistakes.", Toast.LENGTH_SHORT).show();
-            disableNumberButtons();
+            Toast.makeText(mistakeCounterTextView.getContext(), "Game Over! You've made too many mistakes.", Toast.LENGTH_SHORT).show();
+            disableNumberButtons(); // Disable the number buttons to prevent further inputs
         }
     }
 
-    private void disableNumberButtons() {
+
+    private static void disableNumberButtons() {
         for (MaterialButton button : numberButtons) {
             button.setEnabled(false); // Disable the number buttons
         }

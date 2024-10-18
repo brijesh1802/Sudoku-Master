@@ -1,6 +1,5 @@
 package com.example.sudokumaster;
 
-
 import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
@@ -17,9 +16,7 @@ public class SudokuGenerator {
 
     private static final int GRID_SIZE = 9;
 
-
-    private static TextView selectedCell = null;
-
+    public static TextView selectedCell = null;
 
     public static void generateSudoku(GridLayout sudokuBoard, Context context) {
         int[][] grid = new int[GRID_SIZE][GRID_SIZE];
@@ -29,7 +26,7 @@ public class SudokuGenerator {
         for (int i = 0; i < GRID_SIZE; i++) {
             System.arraycopy(grid[i], 0, GameData.originalGrid[i], 0, GRID_SIZE);
         }
-        Log.d("Original Grid",":"+ Arrays.deepToString(GameData.originalGrid));
+        Log.d("Original Grid", ":" + Arrays.deepToString(GameData.originalGrid));
 
         removeNumbers(grid);
 
@@ -83,26 +80,35 @@ public class SudokuGenerator {
         }
     }
 
+    public static void setNumberInSelectedCell(TextView selectedCell, int number) {
+        if (selectedCell != null) {
+            Cell cellTag = (Cell) selectedCell.getTag();
+            int row = cellTag.row;
+            int col = cellTag.col;
+            int correctValue = GameData.originalGrid[row][col];
 
-    // New method to remove some numbers from the filled grid
-    private static void removeNumbers(int[][] grid) {
-        int count = 30; // Adjust this to set how many numbers you want to remove
-        while (count > 0) {
-            int row = (int) (Math.random() * GRID_SIZE);
-            int col = (int) (Math.random() * GRID_SIZE);
-            if (grid[row][col] != 0) {
-                grid[row][col] = 0; // Set the value to 0 to make it empty
-                count--;
+            if (number != correctValue) {
+                // Increment mistakes counter if incorrect
+                MainActivity.mistakes++;
+                MainActivity.updateMistakeCounter();// Make sure mistakes is static or accessible
+                Log.d("SudokuGame", "Mistakes incremented to: " + MainActivity.mistakes);
             }
+
+            selectedCell.setText(String.valueOf(number)); // Set the text to the selected cell
+            selectedCell.setBackgroundColor(Color.TRANSPARENT); // Remove highlight after setting number
+            SudokuGenerator.selectedCell = null; // Deselect the cell
+        } else {
+            Log.d("SudokuGame", "No cell is selected.");
         }
     }
 
-    public static void setupNumberButtons(MaterialButton[] numberButtons,MainActivity activity) {
+    public static void setupNumberButtons(MaterialButton[] numberButtons, MainActivity activity) {
         for (int i = 0; i < numberButtons.length; i++) {
             int number = i + 1; // Buttons are 1 to 9
 
             numberButtons[i].setOnClickListener(v -> {
                 if (selectedCell != null) {
+                    Log.d("Button Click", "Button clicked: " + number);
                     Cell cellTag = (Cell) selectedCell.getTag(); // Get row and column from the tag
                     int row = cellTag.row;
                     int col = cellTag.col;
@@ -110,25 +116,14 @@ public class SudokuGenerator {
                     // Log the row and column
                     Log.d("Selected Cell", "Row: " + row + ", Column: " + col);
 
-                    // Check if the selected number is correct
-                    if (GameData.originalGrid[row][col] != number) {
-                        // Increment mistakes counter if incorrect
-                        activity.updateMistakeCounter();
-                    } else {
-                        Log.d("Correct", "Correct number placed.");
-                    }
-
-                    // Update the cell with the selected number
-                    selectedCell.setText(String.valueOf(number));
-                    selectedCell.setBackgroundColor(Color.TRANSPARENT); // Remove highlight after number is set
-                    selectedCell = null;
+                    // Call the method to set the number
+                    setNumberInSelectedCell(selectedCell, number);
+                } else {
+                    Log.d("SudokuGame", "No cell is selected.");
                 }
             });
         }
     }
-
-
-
 
     private static boolean fillValues(int[][] grid) {
         for (int row = 0; row < GRID_SIZE; row++) {
@@ -175,5 +170,17 @@ public class SudokuGenerator {
             }
         }
         return true;
+    }
+
+    private static void removeNumbers(int[][] grid) {
+        int count = 30; // Adjust this to set how many numbers you want to remove
+        while (count > 0) {
+            int row = (int) (Math.random() * GRID_SIZE);
+            int col = (int) (Math.random() * GRID_SIZE);
+            if (grid[row][col] != 0) {
+                grid[row][col] = 0; // Set the value to 0 to make it empty
+                count--;
+            }
+        }
     }
 }
