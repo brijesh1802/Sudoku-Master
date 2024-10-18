@@ -14,7 +14,7 @@ import java.util.List;
 
 public class SudokuGenerator {
 
-    private static final int GRID_SIZE = 9;
+    public static final int GRID_SIZE = 9;
 
     public static int[][] grid;
 
@@ -97,7 +97,12 @@ public class SudokuGenerator {
             }
 
             selectedCell.setText(String.valueOf(number)); // Set the text to the selected cell
-            selectedCell.setBackgroundColor(Color.TRANSPARENT); // Remove highlight after setting number
+            selectedCell.setBackgroundColor(Color.TRANSPARENT);
+
+            if (MainActivity.isSudokuSolved()) {
+                MainActivity.showCongratulationsDialog(); // Call the dialog from MainActivity
+            }
+
             SudokuGenerator.selectedCell = null; // Deselect the cell
         } else {
             Log.d("SudokuGame", "No cell is selected.");
@@ -120,6 +125,7 @@ public class SudokuGenerator {
 
                     // Call the method to set the number
                     setNumberInSelectedCell(selectedCell, number);
+
                 } else {
                     Log.d("SudokuGame", "No cell is selected.");
                 }
@@ -175,7 +181,7 @@ public class SudokuGenerator {
     }
 
     private static void removeNumbers(int[][] grid) {
-        int count = 30; // Adjust this to set how many numbers you want to remove
+        int count = 4; // Adjust this to set how many numbers you want to remove
         while (count > 0) {
             int row = (int) (Math.random() * GRID_SIZE);
             int col = (int) (Math.random() * GRID_SIZE);
@@ -195,5 +201,6 @@ public class SudokuGenerator {
             Log.d("SudokuGame", "No cell is selected.");
         }
     }
+
 
 }

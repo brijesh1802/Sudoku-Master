@@ -15,7 +15,7 @@ import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import com.google.android.material.button.MaterialButton;
@@ -23,7 +23,6 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private TextView selectedCell; // This will hold the currently selected cell
     private static TextView mistakeCounterTextView; // TextView for displaying mistakes
     public static int mistakes = 0; // Count of mistakes made
     private static final int MAX_MISTAKES = 3; // Maximum allowed mistakes
@@ -33,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CountDownTimer countDownTimer;
     private boolean isTimerRunning = false;
     private long timeLeftInMillis = 600000; // Default: 10 minutes
-    GridLayout sudokuBoard;
+    public static GridLayout sudokuBoard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,8 +106,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     }
-
-
 
     private void showTimeSelectionDialog() {
         Dialog dialog = new Dialog(this);
@@ -249,5 +246,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             button.setEnabled(false); // Disable the number buttons
         }
     }
+
+    public static boolean isSudokuSolved() {
+        for (int i = 0; i < SudokuGenerator.GRID_SIZE; i++) {
+            for (int j = 0; j < SudokuGenerator.GRID_SIZE; j++) {
+                TextView textView = (TextView) sudokuBoard.getChildAt(i * SudokuGenerator.GRID_SIZE + j);
+                int currentValue = textView.getText().toString().isEmpty() ? 0 : Integer.parseInt(textView.getText().toString());
+                int correctValue = GameData.originalGrid[i][j];
+
+                // Check if the current value matches the original grid
+                if (currentValue != correctValue) {
+                    return false;
+                }
+            }
+        }
+        return true; // If all cells match, the Sudoku is solved
+    }
+
+    public static void showCongratulationsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(sudokuBoard.getContext());
+        builder.setTitle("Congratulations!");
+        builder.setMessage("You've successfully solved the Sudoku puzzle!");
+        builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
 
 }
