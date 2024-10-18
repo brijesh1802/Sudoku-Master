@@ -1,6 +1,9 @@
 package com.example.sudokumaster;
 
+import static com.example.sudokumaster.GameData.originalGrid;
+import static com.example.sudokumaster.SudokuGenerator.GRID_SIZE;
 import static com.example.sudokumaster.SudokuGenerator.generateSudoku;
+import static com.example.sudokumaster.SudokuGenerator.grid;
 import static com.example.sudokumaster.SudokuGenerator.setupNumberButtons;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -8,6 +11,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -15,11 +19,13 @@ import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import com.google.android.material.button.MaterialButton;
+import java.util.Arrays;
 import java.util.Locale;
+import java.util.Stack;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -34,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private long timeLeftInMillis = 600000; // Default: 10 minutes
     public static GridLayout sudokuBoard;
     public static boolean isGameActive = true;
+    public static Stack<int[][]> moveStack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +54,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         timeSelectImg = findViewById(R.id.timeselect);
         restartimg = findViewById(R.id.restartimg);
         erasevalue = findViewById(R.id.erasevalue);
+        moveStack = new Stack<>();
 
         ImageView undoImg = findViewById(R.id.undoimg);
+        undoImg.setOnClickListener(v -> {
+            // Make sure you have the selected cell before calling undo
+                undoLastMove(); // Call with the currently selected cell
+        });
+
 
 
         timeSelectImg.setOnClickListener(v -> showTimeSelectionDialog());
@@ -155,6 +168,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dialog.show();
     }
 
+    public void undoLastMove() {
+        if (moveStack == null || moveStack.isEmpty()) {
+            Log.d("SudokuGame", "No moves to undo.");
+            Toast.makeText(this,"Undo is available for previous 2 moves only",Toast.LENGTH_SHORT).show();
+            return; // Early return if no moves are available
+        }
+
+        // Pop the last grid state
+        int[][] lastGridState = moveStack.pop();
+        for (int i = 0; i < GRID_SIZE; i++) {
+            System.arraycopy(lastGridState[i], 0, grid[i], 0, GRID_SIZE);
+        }
+
+        // Update the UI for all cells based on the restored grid state
+        for (int i = 0; i < GRID_SIZE; i++) {
+            for (int j = 0; j < GRID_SIZE; j++) {
+                TextView cellView = (TextView) sudokuBoard.getChildAt(i * GRID_SIZE + j);
+                cellView.setText(grid[i][j] == 0 ? "" : String.valueOf(grid[i][j]));
+            }
+        }
+
+        Log.d("SudokuGame", "Last move undone. Current state: " + Arrays.deepToString(grid));
+    }
+
     private void startTimer() {
         if (countDownTimer != null) {
             countDownTimer.cancel();
@@ -218,7 +255,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dialog.setContentView(R.layout.dialog_times_up);
 
         // Get references to UI elements
-        TextView tvMessage = dialog.findViewById(R.id.tvMessage);
         Button btnClose = dialog.findViewById(R.id.btnClose);
 
         // Set click listener for the close button
@@ -270,18 +306,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private static void disableNumberButtons() {
-        for (MaterialButton button : numberButtons) {
-            button.setEnabled(false); // Disable the number buttons
-        }
-    }
-
     public static boolean isSudokuSolved() {
-        for (int i = 0; i < SudokuGenerator.GRID_SIZE; i++) {
-            for (int j = 0; j < SudokuGenerator.GRID_SIZE; j++) {
-                TextView textView = (TextView) sudokuBoard.getChildAt(i * SudokuGenerator.GRID_SIZE + j);
+        for (int i = 0; i < GRID_SIZE; i++) {
+            for (int j = 0; j < GRID_SIZE; j++) {
+                TextView textView = (TextView) sudokuBoard.getChildAt(i * GRID_SIZE + j);
                 int currentValue = textView.getText().toString().isEmpty() ? 0 : Integer.parseInt(textView.getText().toString());
-                int correctValue = GameData.originalGrid[i][j];
+                int correctValue = originalGrid[i][j];
 
                 // Check if the current value matches the original grid
                 if (currentValue != correctValue) {

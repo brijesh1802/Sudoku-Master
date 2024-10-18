@@ -1,5 +1,6 @@
 package com.example.sudokumaster;
 
+import static com.example.sudokumaster.MainActivity.moveStack;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
@@ -21,7 +22,7 @@ public class SudokuGenerator {
     public static TextView selectedCell = null;
 
     public static void generateSudoku(GridLayout sudokuBoard, Context context) {
-        int[][] grid = new int[GRID_SIZE][GRID_SIZE];
+        grid = new int[GRID_SIZE][GRID_SIZE];
         fillValues(grid);
 
         GameData.originalGrid = new int[GRID_SIZE][GRID_SIZE];
@@ -96,6 +97,12 @@ public class SudokuGenerator {
                 Log.d("SudokuGame", "Mistakes incremented to: " + MainActivity.mistakes);
             }
 
+            if (moveStack.size() == 2) {
+                moveStack.remove(0); // Keep only the last two states
+            }
+            moveStack.push(cloneGrid(grid)); // Push a copy of the current grid state
+
+            grid[row][col] = number;
             selectedCell.setText(String.valueOf(number)); // Set the text to the selected cell
             selectedCell.setBackgroundColor(Color.TRANSPARENT);
 
@@ -107,6 +114,14 @@ public class SudokuGenerator {
         } else {
             Log.d("SudokuGame", "No cell is selected.");
         }
+    }
+
+    private static int[][] cloneGrid(int[][] original) {
+        int[][] copy = new int[original.length][];
+        for (int i = 0; i < original.length; i++) {
+            copy[i] = original[i].clone();
+        }
+        return copy;
     }
 
     public static void setupNumberButtons(MaterialButton[] numberButtons, MainActivity activity) {
