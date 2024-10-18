@@ -2,14 +2,10 @@ package com.example.sudokumaster;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.view.Gravity;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.TextView;
-
-import com.google.android.material.resources.CancelableFontCallback;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,9 +22,14 @@ public class SudokuGenerator {
         int[][] grid = new int[GRID_SIZE][GRID_SIZE];
         fillValues(grid);
 
+        int[][] originalGrid = new int[GRID_SIZE][GRID_SIZE];
+        for (int i = 0; i < GRID_SIZE; i++) {
+            System.arraycopy(grid[i], 0, originalGrid[i], 0, GRID_SIZE);
+        }
+
+
         removeNumbers(grid);
 
-        // Clear existing views in the GridLayout
         sudokuBoard.removeAllViews();
 
         for (int i = 0; i < GRID_SIZE; i++) {
@@ -36,7 +37,6 @@ public class SudokuGenerator {
                 TextView textView = new TextView(context);
                 textView.setText(grid[i][j] == 0 ? "" : String.valueOf(grid[i][j]));
 
-                // Set cell appearance
                 textView.setTextColor(Color.BLACK);
                 textView.setTextSize(24);
                 textView.setGravity(Gravity.CENTER);
@@ -59,16 +59,22 @@ public class SudokuGenerator {
                 params.setMargins(2, 2, 2, 2);
                 textView.setLayoutParams(params);
 
-                textView.setTag(grid[i][j]);
+                textView.setTag(originalGrid[i][j]);
 
-                // Make the cell clickable
-                textView.setOnClickListener(v -> {
-                    if (selectedCell != null) {
-                        selectedCell.setBackgroundColor(Color.TRANSPARENT); // Reset the background of the previously selected cell
-                    }
-                    selectedCell = textView;
-                    textView.setBackgroundColor(Color.YELLOW); // Highlight selected cell
-                });
+
+                if (grid[i][j] == 0) {
+                    textView.setOnClickListener(v -> {
+                        if (selectedCell != null) {
+                            selectedCell.setBackgroundColor(Color.TRANSPARENT); // Reset the background of the previously selected cell
+                        }
+                        selectedCell = textView;
+                        textView.setBackgroundColor(Color.YELLOW); // Highlight selected cell
+                    });
+                } else {
+                    textView.setClickable(false);
+                    textView.setFocusable(false);
+                    //textView.setBackgroundColor(Color.LTGRAY); // Change background for fixed cells
+                }
 
                 sudokuBoard.addView(textView, params);
             }
