@@ -1,12 +1,15 @@
 package com.example.sudokumaster;
 
+
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.Gravity;
-import android.widget.Button;
+import com.google.android.material.button.MaterialButton;
 import android.widget.GridLayout;
 import android.widget.TextView;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,11 +25,11 @@ public class SudokuGenerator {
         int[][] grid = new int[GRID_SIZE][GRID_SIZE];
         fillValues(grid);
 
-        int[][] originalGrid = new int[GRID_SIZE][GRID_SIZE];
+        GameData.originalGrid = new int[GRID_SIZE][GRID_SIZE];
         for (int i = 0; i < GRID_SIZE; i++) {
-            System.arraycopy(grid[i], 0, originalGrid[i], 0, GRID_SIZE);
+            System.arraycopy(grid[i], 0, GameData.originalGrid[i], 0, GRID_SIZE);
         }
-
+        Log.d("Original Grid",":"+ Arrays.deepToString(GameData.originalGrid));
 
         removeNumbers(grid);
 
@@ -59,8 +62,7 @@ public class SudokuGenerator {
                 params.setMargins(2, 2, 2, 2);
                 textView.setLayoutParams(params);
 
-                textView.setTag(originalGrid[i][j]);
-
+                textView.setTag(new Cell(i, j));
 
                 if (grid[i][j] == 0) {
                     textView.setOnClickListener(v -> {
@@ -73,7 +75,7 @@ public class SudokuGenerator {
                 } else {
                     textView.setClickable(false);
                     textView.setFocusable(false);
-                    //textView.setBackgroundColor(Color.LTGRAY); // Change background for fixed cells
+                    textView.setBackgroundColor(Color.LTGRAY); // Change background for fixed cells
                 }
 
                 sudokuBoard.addView(textView, params);
@@ -95,19 +97,36 @@ public class SudokuGenerator {
         }
     }
 
-    public static void setupNumberButtons(GridLayout sudokuBoard, Button[] numberButtons) {
+    public static void setupNumberButtons(MaterialButton[] numberButtons,MainActivity activity) {
         for (int i = 0; i < numberButtons.length; i++) {
             int number = i + 1; // Buttons are 1 to 9
 
             numberButtons[i].setOnClickListener(v -> {
                 if (selectedCell != null) {
+                    Cell cellTag = (Cell) selectedCell.getTag(); // Get row and column from the tag
+                    int row = cellTag.row;
+                    int col = cellTag.col;
+
+                    // Log the row and column
+                    Log.d("Selected Cell", "Row: " + row + ", Column: " + col);
+
+                    // Check if the selected number is correct
+                    if (GameData.originalGrid[row][col] != number) {
+                        // Increment mistakes counter if incorrect
+                        activity.updateMistakeCounter();
+                    } else {
+                        Log.d("Correct", "Correct number placed.");
+                    }
+
+                    // Update the cell with the selected number
                     selectedCell.setText(String.valueOf(number));
                     selectedCell.setBackgroundColor(Color.TRANSPARENT); // Remove highlight after number is set
-                    selectedCell = null; // Clear the selected cell
+                    selectedCell = null;
                 }
             });
         }
     }
+
 
 
 

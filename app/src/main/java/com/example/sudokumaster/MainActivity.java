@@ -4,9 +4,11 @@ import static com.example.sudokumaster.SudokuGenerator.generateSudoku;
 import static com.example.sudokumaster.SudokuGenerator.setupNumberButtons;
 
 import android.app.Dialog;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
@@ -20,6 +22,7 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
 
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Stack;
 
@@ -36,8 +39,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean isTimerRunning = false;
     private long timeLeftInMillis = 600000; // Default: 10 minutes
     GridLayout sudokuBoard;
-    private Stack<Integer> previousMoves; // Stack to keep track of previous moves
-    private Stack<TextView> previousCells; // Stack to keep track of the cells modified
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,30 +51,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         timerTextView = findViewById(R.id.timer);
         timeSelectImg = findViewById(R.id.timeselect);
         restartimg = findViewById(R.id.restartimg);
-        previousMoves = new Stack<>(); // Initialize the stack for moves
-        previousCells = new Stack<>(); // Initialize the stack for cells
 
         ImageView undoImg = findViewById(R.id.undoimg);
-        undoImg.setOnClickListener(v -> undoLastMove());
+
 
         timeSelectImg.setOnClickListener(v -> showTimeSelectionDialog());
 
         // Generate the Sudoku puzzle
         generateSudoku(sudokuBoard, this);
 
-        // Initialize number buttons
         numberButtons = new MaterialButton[9];
-        for (int i = 0; i < numberButtons.length; i++) {
-            int resId = getResources().getIdentifier("num" + (i + 1), "id", getPackageName());
-            numberButtons[i] = findViewById(resId);
-            numberButtons[i].setOnClickListener(this);
+
+        numberButtons[0] = findViewById(R.id.num1);
+        numberButtons[1] = findViewById(R.id.num2);
+        numberButtons[2] = findViewById(R.id.num3);
+        numberButtons[3] = findViewById(R.id.num4);
+        numberButtons[4] = findViewById(R.id.num5);
+        numberButtons[5] = findViewById(R.id.num6);
+        numberButtons[6] = findViewById(R.id.num7);
+        numberButtons[7] = findViewById(R.id.num8);
+        numberButtons[8] = findViewById(R.id.num9);
+
+        for (MaterialButton numberButton : numberButtons) {
+            numberButton.setOnClickListener(this);
         }
 
+
         // Setup number buttons in Sudoku
-        setupNumberButtons(sudokuBoard, numberButtons);
+        setupNumberButtons(numberButtons,this);
 
         // Start the timer when activity is opened
-        startTimer();
+        //startTimer();
 
         // Set onClickListener to pause/resume the timer
         timerimg.setOnClickListener(v -> {
@@ -85,22 +93,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         restartimg.setOnClickListener(v -> {
             generateSudoku(sudokuBoard, getApplicationContext());
-            updateTimer();
+            //updateTimer();
         });
 
     }
 
     @Override
     public void onClick(View v) {
-        // Check if the clicked view is a number button
         for (int i = 0; i < 9; i++) {
             if (v.getId() == numberButtons[i].getId()) {
-                int number = i + 1; // Get the number corresponding to the button
+                int number = i + 1;
                 setNumberInSelectedCell(number);
                 break;
             }
         }
     }
+
 
     private void showTimeSelectionDialog() {
         Dialog dialog = new Dialog(this);
@@ -198,25 +206,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         timerTextView.setText(timeFormatted);
     }
 
+
     private void setNumberInSelectedCell(int number) {
         if (selectedCell != null) {
-            int correctValue = (int) selectedCell.getTag(); // Get the correct value from the tag
+            // Get the position of the selected cell (assuming the cell stores row and column in its tag)
+            Cell cellTag = (Cell) selectedCell.getTag();
+            int row = cellTag.row;
+            int col = cellTag.col;
 
+
+            // Get the correct value from the original grid (defined in GameData)
+            int correctValue = GameData.originalGrid[row][col];
+
+            // Check if the entered number is correct
             if (number != correctValue) {
                 mistakes++; // Increment mistakes if the number is incorrect
                 updateMistakeCounter();
             }
 
-            previousMoves.push(Integer.parseInt(selectedCell.getText().toString()));
-            previousCells.push(selectedCell);
+            // Set the number in the selected cell
+            selectedCell.setText(String.valueOf(number));
 
-            selectedCell.setText(String.valueOf(number)); // Set the number in the selected cell
-            selectedCell.setBackgroundColor(Color.TRANSPARENT); // Remove highlight
-            selectedCell = null; // Deselect the cell
+            // Optionally, update cell appearance to indicate it was filled
+            selectedCell.setBackgroundColor(Color.TRANSPARENT); // Remove highlight after setting number
+            selectedCell = null; // Deselect the cell after setting
+        } else {
+            Log.d("SudokuGame", "No cell is selected.");
         }
     }
 
-    private void updateMistakeCounter() {
+    public void updateMistakeCounter() {
         mistakeCounterTextView.setText(mistakes + "/" + MAX_MISTAKES); // Update the display
         if (mistakes >= MAX_MISTAKES) {
             Toast.makeText(this, "Game Over! You've made too many mistakes.", Toast.LENGTH_SHORT).show();
@@ -227,21 +246,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void disableNumberButtons() {
         for (MaterialButton button : numberButtons) {
             button.setEnabled(false); // Disable the number buttons
-        }
-    }
-
-    // Method to undo the last move
-    private void undoLastMove() {
-        if (!previousMoves.isEmpty() && !previousCells.isEmpty()) {
-            // Get the last number and cell
-            int lastNumber = previousMoves.pop();
-            TextView lastCell = previousCells.pop();
-
-            // Restore the last number in the cell
-            lastCell.setText(String.valueOf(lastNumber));
-            lastCell.setBackgroundColor(Color.TRANSPARENT); // Optionally reset the background color
-        } else {
-            Toast.makeText(this, "No more moves to undo!", Toast.LENGTH_SHORT).show();
         }
     }
 
