@@ -89,7 +89,7 @@ public class SudokuGenerator {
             int col = cellTag.col;
             int correctValue = GameData.originalGrid[row][col];
 
-            if (number != correctValue) {
+            if (number != correctValue && MainActivity.isGameActive) {
                 // Increment mistakes counter if incorrect
                 MainActivity.mistakes++;
                 MainActivity.updateMistakeCounter();// Make sure mistakes is static or accessible

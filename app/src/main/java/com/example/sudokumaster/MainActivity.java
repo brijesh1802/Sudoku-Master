@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean isTimerRunning = false;
     private long timeLeftInMillis = 600000; // Default: 10 minutes
     public static GridLayout sudokuBoard;
+    public static boolean isGameActive = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -227,6 +228,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // Reset mistake counter and update the mistake counter TextView
                 mistakes = 0;
                 mistakeCounterTextView.setText("--");
+                isGameActive = false; // Set game state to inactive
                 dialog.dismiss(); // Close the dialog
             });
 
