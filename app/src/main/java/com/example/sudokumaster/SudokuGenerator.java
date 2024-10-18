@@ -16,6 +16,8 @@ public class SudokuGenerator {
 
     private static final int GRID_SIZE = 9;
 
+    public static int[][] grid;
+
     public static TextView selectedCell = null;
 
     public static void generateSudoku(GridLayout sudokuBoard, Context context) {
@@ -183,4 +185,15 @@ public class SudokuGenerator {
             }
         }
     }
+
+    public static void eraseSelectedCell() {
+        if (selectedCell != null) {
+            selectedCell.setText(""); // Set the text to the selected cell
+            selectedCell.setBackgroundColor(Color.TRANSPARENT); // Remove highlight after setting number
+            SudokuGenerator.selectedCell = null; // Deselect the cell
+        } else {
+            Log.d("SudokuGame", "No cell is selected.");
+        }
+    }
+
 }

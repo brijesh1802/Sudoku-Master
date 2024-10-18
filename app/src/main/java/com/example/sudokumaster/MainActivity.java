@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static int mistakes = 0; // Count of mistakes made
     private static final int MAX_MISTAKES = 3; // Maximum allowed mistakes
     static MaterialButton[]  numberButtons;
-    private ImageView timerimg, timeSelectImg,restartimg;
+    private ImageView timerimg, timeSelectImg,restartimg, erasevalue;
     private TextView timerTextView;
     private CountDownTimer countDownTimer;
     private boolean isTimerRunning = false;
@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         timerTextView = findViewById(R.id.timer);
         timeSelectImg = findViewById(R.id.timeselect);
         restartimg = findViewById(R.id.restartimg);
+        erasevalue = findViewById(R.id.erasevalue);
 
         ImageView undoImg = findViewById(R.id.undoimg);
 
@@ -86,6 +87,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         restartimg.setOnClickListener(v -> {
             generateSudoku(sudokuBoard, getApplicationContext());
+        });
+
+        erasevalue.setOnClickListener(v->{
+            SudokuGenerator.eraseSelectedCell();
         });
 
     }
