@@ -1,10 +1,10 @@
-package com.example.sudokumaster;
+package com.example.sudokumaster.GameBoard;
 
-import static com.example.sudokumaster.GameData.originalGrid;
-import static com.example.sudokumaster.SudokuGenerator.GRID_SIZE;
-import static com.example.sudokumaster.SudokuGenerator.generateSudoku;
-import static com.example.sudokumaster.SudokuGenerator.grid;
-import static com.example.sudokumaster.SudokuGenerator.setupNumberButtons;
+import static com.example.sudokumaster.GameBoard.GameData.originalGrid;
+import static com.example.sudokumaster.GameBoard.SudokuGenerator.GRID_SIZE;
+import static com.example.sudokumaster.GameBoard.SudokuGenerator.generateSudoku;
+import static com.example.sudokumaster.GameBoard.SudokuGenerator.grid;
+import static com.example.sudokumaster.GameBoard.SudokuGenerator.setupNumberButtons;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -22,18 +22,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+
+import com.example.sudokumaster.R;
 import com.google.android.material.button.MaterialButton;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Stack;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class GameBoard extends AppCompatActivity implements View.OnClickListener {
 
     private static TextView mistakeCounterTextView; // TextView for displaying mistakes
     public static int mistakes = 0; // Count of mistakes made
     private static final int MAX_MISTAKES = 3; // Maximum allowed mistakes
     static MaterialButton[]  numberButtons;
-    private ImageView timerimg, timeSelectImg,restartimg, erasevalue;
+    private ImageView timerimg, timeSelectImg,restartimg, erasevalue, backtohome;
     private TextView timerTextView;
     private CountDownTimer countDownTimer;
     private boolean isTimerRunning = false;
@@ -45,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.gameboard_activity);
 
         sudokuBoard = findViewById(R.id.sudokuBoard);
         mistakeCounterTextView = findViewById(R.id.mistakecounter);
@@ -54,7 +56,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         timeSelectImg = findViewById(R.id.timeselect);
         restartimg = findViewById(R.id.restartimg);
         erasevalue = findViewById(R.id.erasevalue);
+        backtohome = findViewById(R.id.backtohome);
         moveStack = new Stack<>();
+
+
 
         ImageView undoImg = findViewById(R.id.undoimg);
         undoImg.setOnClickListener(v -> {
@@ -106,6 +111,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             SudokuGenerator.eraseSelectedCell();
         });
 
+        backtohome.setOnClickListener(v->{
+            showConfirmDialog();
+        });
+
     }
 
     @Override
@@ -119,6 +128,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             }
         }
+    }
+
+    private void showConfirmDialog() {
+        final Dialog dialog = new Dialog(GameBoard.this);
+        dialog.setContentView(R.layout.dialog_confirm_exit);
+        dialog.setCancelable(true);
+
+        Button okButton = dialog.findViewById(R.id.okButton);
+        Button cancelButton = dialog.findViewById(R.id.cancelButton);
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // End the game and go to home activity
+                dialog.dismiss();
+                finish(); // or navigate to the home screen activity
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Dismiss the dialog, continue the game
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
     }
 
     private void showTimeSelectionDialog() {

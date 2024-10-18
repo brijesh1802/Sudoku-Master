@@ -1,4 +1,4 @@
-package com.example.sudokumaster;
+package com.example.sudokumaster.GameBoard;
 
 public class Cell {
     int row, col;

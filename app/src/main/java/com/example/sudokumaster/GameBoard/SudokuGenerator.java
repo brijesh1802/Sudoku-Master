@@ -1,6 +1,6 @@
-package com.example.sudokumaster;
+package com.example.sudokumaster.GameBoard;
 
-import static com.example.sudokumaster.MainActivity.moveStack;
+import static com.example.sudokumaster.GameBoard.GameBoard.moveStack;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
@@ -90,11 +90,11 @@ public class SudokuGenerator {
             int col = cellTag.col;
             int correctValue = GameData.originalGrid[row][col];
 
-            if (number != correctValue && MainActivity.isGameActive) {
+            if (number != correctValue && GameBoard.isGameActive) {
                 // Increment mistakes counter if incorrect
-                MainActivity.mistakes++;
-                MainActivity.updateMistakeCounter();// Make sure mistakes is static or accessible
-                Log.d("SudokuGame", "Mistakes incremented to: " + MainActivity.mistakes);
+                GameBoard.mistakes++;
+                GameBoard.updateMistakeCounter();// Make sure mistakes is static or accessible
+                Log.d("SudokuGame", "Mistakes incremented to: " + GameBoard.mistakes);
             }
 
             if (moveStack.size() == 2) {
@@ -106,8 +106,8 @@ public class SudokuGenerator {
             selectedCell.setText(String.valueOf(number)); // Set the text to the selected cell
             selectedCell.setBackgroundColor(Color.TRANSPARENT);
 
-            if (MainActivity.isSudokuSolved()) {
-                MainActivity.showCongratulationsDialog(); // Call the dialog from MainActivity
+            if (GameBoard.isSudokuSolved()) {
+                GameBoard.showCongratulationsDialog(); // Call the dialog from GameBoard
             }
 
             SudokuGenerator.selectedCell = null; // Deselect the cell
@@ -124,7 +124,7 @@ public class SudokuGenerator {
         return copy;
     }
 
-    public static void setupNumberButtons(MaterialButton[] numberButtons, MainActivity activity) {
+    public static void setupNumberButtons(MaterialButton[] numberButtons, GameBoard activity) {
         for (int i = 0; i < numberButtons.length; i++) {
             int number = i + 1; // Buttons are 1 to 9
 
@@ -196,7 +196,7 @@ public class SudokuGenerator {
     }
 
     private static void removeNumbers(int[][] grid) {
-        int count = 4; // Adjust this to set how many numbers you want to remove
+        int count = 28; // Adjust this to set how many numbers you want to remove
         while (count > 0) {
             int row = (int) (Math.random() * GRID_SIZE);
             int col = (int) (Math.random() * GRID_SIZE);
