@@ -118,7 +118,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setTimeBtn.setOnClickListener(v -> {
             int selectedId = radioGroup.getCheckedRadioButtonId();
 
-            if (selectedId == R.id.radio_5min) {
+            if (selectedId == R.id.radio_5sec) {
+                timeLeftInMillis = 5000; // 5 minutes
+                timerTextView.setText("00:05");
+                timerimg.setEnabled(true);
+                generateSudoku(sudokuBoard, getApplicationContext());
+                startTimer();
+            }
+            else if (selectedId == R.id.radio_5min) {
                 timeLeftInMillis = 300000; // 5 minutes
                 timerTextView.setText("05:00");
                 timerimg.setEnabled(true);
@@ -163,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onFinish() {
                 // Timer finished, handle game over
+                showTimeUpDialog();
             }
         }.start();
 
@@ -204,6 +212,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         timerTextView.setText(timeFormatted);
     }
 
+    public void showTimeUpDialog() {
+        // Create a Dialog
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_times_up);
+
+        // Get references to UI elements
+        TextView tvMessage = dialog.findViewById(R.id.tvMessage);
+        Button btnClose = dialog.findViewById(R.id.btnClose);
+
+        // Set click listener for the close button
+        btnClose.setOnClickListener(v -> {
+            dialog.dismiss(); // Close the dialog
+            // Optionally, reset the game or do any other action here
+        });
+
+        // Show the dialog
+        dialog.setCancelable(false); // Prevent dismissing the dialog when touching outside
+        dialog.show();
+    }
 
     @SuppressLint("DefaultLocale")
     public static void updateMistakeCounter() {
