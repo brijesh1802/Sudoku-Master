@@ -3,9 +3,12 @@ package com.example.sudokumaster;
 import static com.example.sudokumaster.SudokuGenerator.generateSudoku;
 import static com.example.sudokumaster.SudokuGenerator.setupNumberButtons;
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
@@ -203,8 +206,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static void updateMistakeCounter() {
         mistakeCounterTextView.setText(String.format("%d/%d", mistakes, MAX_MISTAKES)); // Update the display
         if (mistakes >= MAX_MISTAKES) {
-            Toast.makeText(mistakeCounterTextView.getContext(), "Game Over! You've made too many mistakes.", Toast.LENGTH_SHORT).show();
-            disableNumberButtons(); // Disable the number buttons to prevent further inputs
+            LayoutInflater inflater = LayoutInflater.from(mistakeCounterTextView.getContext());
+            View dialogView = inflater.inflate(R.layout.custom_max_mistake_dialog, null);
+
+            // Create and set up the dialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(mistakeCounterTextView.getContext());
+            builder.setView(dialogView);
+
+            // Create the AlertDialog instance
+            AlertDialog dialog = builder.create();
+
+            // Get references to the buttons in the custom layout
+            Button btnContinue = dialogView.findViewById(R.id.btnContinue);
+            Button btnExit = dialogView.findViewById(R.id.btnExit);
+
+            // Handle "Continue" button click
+            btnContinue.setOnClickListener(v -> {
+                // Reset mistake counter and update the mistake counter TextView
+                mistakes = 0;
+                mistakeCounterTextView.setText("--");
+                dialog.dismiss(); // Close the dialog
+            });
+
+            // Handle "Exit" button click
+            btnExit.setOnClickListener(v -> {
+                ((Activity) mistakeCounterTextView.getContext()).finish(); // Exit the game
+            });
+
+            // Show the dialog
+            dialog.show();
         }
     }
 
